@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+  "name": "mem.limited",
+  "description": "Refactor your memory",
+  "version": "1.0",
+  "permissions": [
+    "tabs",
+    "history",
+    "bookmarks",
+    "chrome://favicon/"
+  ],
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}
