@@ -3,15 +3,30 @@
   "name": "mem.limited",
   "description": "Refactor your memory",
   "version": "1.0",
-  "permissions": [
-    "tabs",
-    "history",
-    "bookmarks",
-    "chrome://favicon/"
-  ],
-  "browser_action": {
-    "default_icon": "icon.png",
-    "default_popup": "popup.html"
+  "permissions": ["tabs", "history", "bookmarks"],
+  "chrome_url_overrides": {
+    "bookmarks": "index.html"
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "commands": {
+    "bookmarks": {
+      "suggested_key": {
+        "default": "Ctrl+B",
+        "mac": "Command+B"
+      },
+      "description": "Open bookmarks page."
+    },
+    "extensions": {
+      "suggested_key": {
+        "default": "Ctrl+E",
+        "mac": "Command+E"
+      },
+      "description": "Open extensions page."
+    }
   },
   "icons": {
     "128": "icon.png"
