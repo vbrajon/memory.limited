@@ -2,7 +2,6 @@ import * as idb from './-idb-keyval.mjs'
 import Vue from './-vue.esm.browser.js'
 Vue.config.devtools = Vue.config.productionTip = false
 Vue.prototype.window = window
-// Object.getOwnPropertyNames(window).map(key => Vue.prototype[key] = window[key])
 Vue.directive('focus', el => el.focus())
 new Vue({
   el: 'main',
@@ -16,20 +15,20 @@ new Vue({
   },
   computed: {
     results() {
-      // const searchFN = d => !this.search || this.search.split(' ').every(s => Object.values(d).some(v => RegExp(s, 'i').test(v)))
-      const searchFN = d => !this.search || RegExp(this.search, 'i').test(d.title)
-      return this.history.filter(searchFN)
+      if (!this.search) return this.history
+      const search = RegExp(this.search.replace(/[^A-z0-9]/g, '.'))
+      return this.history.filter(d => ['title', 'url'].some(k => search.test(d[k])))
     },
     focus() {
       return this.results[this.index] || {}
     },
   },
   async created() {
-    this.history = (await idb.get('hi')) || []
-    this.bookmarks = await idb.get('bm')
+    let history = (await idb.get('history')) || []
+    let bookmarks = (await idb.get('bookmarks')) || {}
 
     localStorage.from = localStorage.from || Date.now() - 90 * 24 * 3600 * 1000
-    chrome.bookmarks.getTree(bm => idb.set('bm', bm))
+    chrome.bookmarks.getTree(bm => idb.set('bookmarks', bm))
     chrome.history.search(
       {
         text: '',
@@ -38,10 +37,19 @@ new Vue({
         endTime: Date.now(),
       },
       hi => {
-        this.history = this.history.concat(hi)
+        history = hi.concat(history)
         localStorage.from = Date.now()
-        idb.set('hi', this.history)
+        idb.set('history', history)
+        this.history = history
       },
     )
+
+    addEventListener('keydown', e => {
+      if (e.key === 'Enter') return (location.href = this.focus.url)
+      document.querySelector('input').focus()
+      if (e.key === 'ArrowUp' && this.index > 0) this.index--
+      if (e.key === 'ArrowDown' && this.index < Math.min(50, this.results.length) - 1) this.index++
+      setTimeout(() => document.querySelector('.active') && document.querySelector('.active').scrollIntoView(), 0)
+    })
   },
 })

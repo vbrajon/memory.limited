@@ -1,25 +1,27 @@
 <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
 <title>Bookmarks</title>
 <link rel="icon" href="/icon.png" />
+<style>body { background: #333 center/cover url(/photo.jpg); }</style>
 <style>
-  @import "/raw.css"; 
-  body { min-height: fit-content;width: 800px;margin: 40px auto;padding: 20px;background: #f8faff;font: 400 20px/1.4 Helvetica Neue; }
-  input { width: 100%;border: none;box-shadow: var(--box-shadow); }
-  input:focus { box-shadow: 0 10px 40px 0 rgba(62,57,107,.07), 0 2px 9px 0 rgba(62,57,107,.06); }
-  .count { margin: 10px 10px 20px;text-align: right;font-size: 14px;color: #444; }
+  @import "/raw.css";
+  body { width: 800px;height: 100vh;margin: auto;padding: 40px;font: 400 20px/1.4 Helvetica Neue; }
+  input { width: 100%;border: none;box-shadow: 0 0 10px 4px #fd4!important; }
+  .count { margin: 10px 20px 20px;text-align: right;font-size: 16px;font-weight: 800; }
+  .cards { height: calc(100vh - 140px);overflow: auto; }
   .card { display: block;margin: 8px 0;padding: 12px;color: var(--text);background: white;border-radius: var(--border-radius);box-shadow: var(--box-shadow);text-decoration: none!important; }
   .card .title { font-size: 16px; }
   .card .url { font-size: 12px;color: var(--primary);white-space: pre;overflow: hidden; }
-  .card:hover { background: rgb(255, 221, 68, .2); }
-  .card.active { background: rgb(255, 221, 68, .5); }
+  .card:hover, .card.active { background: #fd4; }
 </style>
 <main>
-  <input v-focus v-model="search" @keydown.down="index++" @keydown.up="index--" @keydown.enter="window.location.href = focus.url">
-  <div class="count">{{ results.length }}/{{ history.length }}</div>
-  <a class="card" :class="{ active: i === index }" :href="result.url" v-for="result, i in results.slice(0, 10)">
-    <div class="title">{{ result.title }}</div>
-    <div class="url">{{ result.url }}</div>
-    <!-- <div class="info">{{ result.visitCount }} / {{ result.lastVisitTime }}</div> -->
-  </a>
+  <input placeholder="Search" v-focus v-model="search">
+  <div class="count">{{ results.length }}/{{ history.length }}</div>
+  <div class="cards">
+    <a class="card" :class="{ active: i === index }" :href="result.url" v-for="result, i in results.slice(0, 50)">
+      <div class="title">{{ result.title }}</div>
+      <div class="url">{{ result.url }}</div>
+      <!-- <div class="info">{{ result.visitCount }} / {{ result.lastVisitTime }}</div> -->
+    </a>
+  </div>
 </main>
 <script type="module" src="/index.js"></script>
