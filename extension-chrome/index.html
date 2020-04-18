@@ -1,27 +1,48 @@
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
-<title>Bookmarks</title>
-<link rel="icon" href="/icon.png" />
-<style>body { background: #333 center/cover url(/photo.jpg); }</style>
-<style>
-  @import "/raw.css";
-  body { width: 800px;height: 100vh;margin: auto;padding: 40px;font: 400 20px/1.4 Helvetica Neue; }
-  input { width: 100%;border: none;box-shadow: 0 0 10px 4px #fd4!important; }
-  .count { margin: 10px 20px 20px;text-align: right;font-size: 16px;font-weight: 800; }
-  .cards { height: calc(100vh - 140px);overflow: auto; }
-  .card { display: block;margin: 8px 0;padding: 12px;color: var(--text);background: white;border-radius: var(--border-radius);box-shadow: var(--box-shadow);text-decoration: none!important; }
-  .card .title { font-size: 16px; }
-  .card .url { font-size: 12px;color: var(--primary);white-space: pre;overflow: hidden; }
-  .card:hover, .card.active { background: #fd4; }
-</style>
-<main>
-  <input placeholder="Search" v-focus v-model="search">
-  <div class="count">{{ results.length }}/{{ history.length }}</div>
-  <div class="cards">
-    <a class="card" :class="{ active: i === index }" :href="result.url" v-for="result, i in results.slice(0, 50)">
-      <div class="title">{{ result.title }}</div>
-      <div class="url">{{ result.url }}</div>
-      <!-- <div class="info">{{ result.visitCount }} / {{ result.lastVisitTime }}</div> -->
-    </a>
-  </div>
-</main>
-<script type="module" src="/index.js"></script>
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <title>Memory Limited</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A search engine for your already explored content">
+    <link rel="icon" href="icon.png">
+    <link rel="stylesheet" href="raw.css">
+    <style>
+      [v-cloak] { display: none; }
+      main { max-width: 850px;padding: 4% 20px;margin: 0 auto; }
+      label, [type="search"] { max-width: none; }
+      [type="search"] { height: 60px;font-size: 18px;font-weight: 500; }
+      [type="search"]:focus { box-shadow: none; }
+      .row.stretch.space { margin: 4px -6px; }
+      a { min-width: 300px;padding: 20px;background: var(--gray05); }
+    </style>
+  </head>
+  <body>
+    <main v-cloak>
+      <label><input type="search" v-model="search"><span>Hit Tab to focus</span></label>
+      <div class="row center">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" shape-rendering="geometricPrecision" style="height: 20px;width: 20px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <div class="space">{{ h.length }}</div>
+      </div>
+      <div class="row stretch space">
+        <a :href="item.url" target="_blank" rel="nofollow noreferrer" v-for="item in h.slice(0, 6)">
+          <img style="margin: -4px 4px" :src="'chrome://favicon/' + new window.URL(item.url).origin">
+          <span>{{ item.title }}</span>
+          <span>{{ new Date(item.lastVisitTime).relative() }}</span>
+        </a>
+      </div>
+      <div class="row center">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" shape-rendering="geometricPrecision" style="height: 20px;width: 20px;"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+        <div class="space">{{ b.length }}</div>
+      </div>
+      <div class="row stretch space">
+        <a :href="item.url" target="_blank" rel="nofollow noreferrer" v-for="item in b.slice(0, 6)">
+          <img style="margin: -4px 4px" :src="'chrome://favicon/' + new window.URL(item.url).origin">
+          <span>{{ item.title }}</span>
+          <span v-if="item.dateAdded">{{ new Date(item.dateAdded).format('YYYY') }}</span>
+        </a>
+      </div>
+    </main>
+    <script type="module" src="/index.js"></script>
+  </body>
+</html>
