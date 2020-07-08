@@ -4,32 +4,33 @@ Object.filter = (obj, fn) =>
   Object.keys(obj)
     .filter((k, i) => fn(obj[k], k, i, obj))
     .reduce((acc, k) => ((acc[k] = obj[k]), acc), {})
-Object.find = (obj, fn) => Object.keys(obj).find((k, i) => fn(obj[k], k, i, obj))
-Object.eq = (a, b) => {
+Object.find = (obj, fn) => obj[Object.keys(obj).find((k, i) => fn(obj[k], k, i, obj))]
+Object.findIndex = (obj, fn) => Object.keys(obj).find((k, i) => fn(obj[k], k, i, obj))
+Object.equal = (a, b) => {
   if (a == null || b == null) return a === b
   if (a.__proto__ !== b.__proto__) return false
   if (![Object.prototype.toString, Array.prototype.toString].includes(a.toString)) return a === b || a.toString() === b.toString()
   if (Object.keys(a).length !== Object.keys(b).length) return false
-  return Object.keys(a).every(k => a[k] === a || Object.eq(a[k], b[k]))
+  return Object.keys(a).every(k => a[k] === a || Object.equal(a[k], b[k]))
 }
-Object.access = (a, str) => {
+Object.access = (obj, path) => {
   try {
-    if (str instanceof Object) return str.map(p => Object.access(a, p))
-    if (!str) return a
-    if (a[str]) return typeof a[str] === 'function' ? a[str]() : a[str]
-    return str
+    if (path == null) return obj
+    if (obj[path] != null) return obj[path]
+    if (path instanceof Object) return path.map(p => Object.access(obj, p))
+    return path
       .replace(/\[["']?/g, '.')
       .replace(/["']?\]/g, '')
       .split('.')
       .filter()
-      .reduce((a, str) => typeof a[str] === 'function' ? a[str]() : a[str], a)
-  } catch (e) {}
+      .reduce((a, p) => a[p], obj)
+  } catch(e) {}
 }
 
 Array.group = (arr, fn) => arr.map(fn).reduce((acc, v, i) => ((acc[v] = (acc[v] || []).concat([arr[i]])), acc), {})
 Array.unique = arr => Array.from(new Set(arr))
-Array.min = arr => arr.slice().sort((a, b) => a - b)[0]
-Array.max = arr => arr.slice().sort((a, b) => b - a)[0]
+Array.min = arr => Math.min(...arr)
+Array.max = arr => Math.max(...arr)
 Array.sum = arr => arr.reduce((acc, v) => acc + v, 0)
 Array.mean = arr => arr.reduce((acc, v) => acc + v, 0) / arr.length
 Array.median = arr => {
@@ -61,10 +62,12 @@ Function.debounce = (fn, ms = 0) => (...args) => {
   fn.id = setTimeout(() => fn(...args), ms)
 }
 Function.throttle = (fn, ms = 0) => (...args) => {
-  if (fn.flag) return
-  fn.flag = true
-  setTimeout(() => delete fn.flag, ms)
-  fn(...args)
+  const run = () => {
+    fn.id = setTimeout(() => (delete fn.id, fn.next && fn.next(), delete fn.next), ms)
+    fn(...args)
+  }
+  if (fn.id) return fn.next = run
+  run()
 }
 Function.memoize = (fn, hash = JSON.stringify) => {
   const f = (...args) => {
@@ -76,13 +79,6 @@ Function.memoize = (fn, hash = JSON.stringify) => {
   return f
 }
 
-String.format = (str, ...args) => {
-  let i = 0,
-    fn = m => args[m]
-  if (typeof args[0] === 'object') fn = m => args[0][m]
-  if (typeof args[0] === 'function') fn = args.shift()
-  return str.replace(/\{[^}]*\}/g, m => fn(m.length === 2 ? i : m.slice(1, -1), i++) || '')
-}
 String.lower = str => str.toLowerCase()
 String.upper = str => str.toUpperCase()
 String.capitalize = str => str.replace(/./, c => c.toUpperCase())
@@ -93,15 +89,23 @@ String.words = (str, sep = /[-_,.\s]/) =>
     .replace(/([a-z])([A-Z\d])/g, '$1 $2')
     .split(sep)
     .filter(Boolean)
-String.join = (str, sep = ' ') => {
-  let words = str.words()
-  if (sep === 'title') return words.map('lower.capitalize').join(' ')
-  if (sep === 'pascal') return words.map('lower.capitalize').join('')
-  if (sep === 'camel') return str.join('pascal').replace(/./, c => c.toLowerCase())
-  if (['dash', 'list', 'kebab', 'underscore', 'snake'].includes(sep)) words = words.map('lower')
-  if (['dash', 'list', 'kebab'].includes(sep)) sep = '-'
-  if (['underscore', 'snake'].includes(sep)) sep = '_'
-  return words.join(sep)
+String.format = (str, ...args) => {
+  if (!args.length) args = ['title']
+  if (['title', 'pascal', 'camel', 'dash', 'list', 'kebab', 'underscore', 'snake'].includes(args[0])) {
+    let words = String.words(str).map(v => v.toLowerCase())
+    let sep = ' '
+    if (args[0] === 'camel') return str.format('pascal').replace(/./, c => c.toLowerCase())
+    if (['title', 'pascal'].includes(args[0])) words = words.map(v => v.replace(/./, c => c.toUpperCase()))
+    if (['pascal'].includes(args[0])) sep = ''
+    if (['dash', 'list', 'kebab'].includes(args[0])) sep = '-'
+    if (['underscore', 'snake'].includes(args[0])) sep = '_'
+    return words.join(sep)
+  }
+  let i = 0
+  let fn = m => args[m] == null ? '' : String(args[m])
+  if (typeof args[0] === 'object') fn = m => args[0][m]
+  if (typeof args[0] === 'function') fn = args.shift()
+  return str.replace(/\{[^}]*\}/g, m => fn(m.length === 2 ? i : m.slice(1, -1), i++) || '')
 }
 
 Number.duration = num => {
@@ -109,9 +113,9 @@ Number.duration = num => {
   const i = n.findIndex(v => v <= Math.abs(num))
   return Math.round(num / n[i]) + ' ' + ['year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millisecond'][i] + (Math.abs(num) / n[i] > 1.5 ? 's' : '')
 }
-Number.format = (num, fmt) => {
-  if (typeof fmt === 'string') return new Intl.NumberFormat(fmt).format(num)
-  if (typeof fmt === 'number') return (+num.toPrecision(fmt)).toExponential().replace(/([+-\d.]+)e([+-\d]+)/, (m, n, e) => +(n + 'e' + (e - Math.floor(e / 3) * 3)) + (['mµnpfazy', 'kMGTPEZY'][+(e > 0)].split('')[Math.abs(Math.floor(e / 3)) - 1] || ''))
+Number.format = (num, format, options) => {
+  if (typeof format === 'string') return Intl.NumberFormat(format, options).format(num)
+  if (typeof format === 'number') return (+num.toPrecision(format)).toExponential().replace(/([+-\d.]+)e([+-\d]+)/, (m, n, e) => +(n + 'e' + (e - Math.floor(e / 3) * 3)) + (['mµnpfazy', 'kMGTPEZY'][+(e > 0)].split('')[Math.abs(Math.floor(e / 3)) - 1] || ''))
   return +num.toPrecision(15)
 }
 
@@ -119,9 +123,9 @@ Date.relative = (date, d2 = new Date()) => (date - d2).duration().replace(/^(-?)
 Date.getWeek = (date, soy = new Date(date.getFullYear(), 0, 0)) => Math.floor(((date - soy) / 86400000 + 6 - soy.getDay()) / 7)
 Date.getQuarter = date => Math.ceil((date.getMonth() + 1) / 3)
 Date.getLastDate = date => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
-Date.format = (date, fmt = 'YYYY-MM-DD', lang = 'en') => {
+Date.format = (date, format = 'YYYY-MM-DD', lang = 'en') => {
   const intl = options => date.toLocaleString(lang, options)
-  const parts = fmt.split(',').map(s => s.trim())
+  const parts = format.split(',').map(s => s.trim())
   if (!parts.filter(v => !['year', 'month', 'mon', 'day', 'weekday', 'wday', 'hour', 'minute', 'second'].includes(v)).length) {
     const options = {}
     if (parts.includes('second')) options.second = '2-digit'
@@ -139,7 +143,7 @@ Date.format = (date, fmt = 'YYYY-MM-DD', lang = 'en') => {
   const letters = { s: 'Seconds', m: 'Minutes', h: 'Hours', D: 'Date', W: 'Week', M: 'Month', Q: 'Quarter', Y: 'FullYear' }
   Object.keys(letters).map(letter => {
     const zeros = letter === 'Y' ? '0000' : '00'
-    fmt = fmt.replace(RegExp(letter + '+', 'g'), m => {
+    format = format.replace(RegExp(letter + '+', 'g'), m => {
       let int
       if (letter === 'W') int = 'W' + Date.getWeek(date)
       if (letter === 'M') int = date.getMonth() + 1
@@ -149,7 +153,7 @@ Date.format = (date, fmt = 'YYYY-MM-DD', lang = 'en') => {
       return (zeros + int).slice(-m.length)
     })
   })
-  return fmt
+  return format
 }
 Date.modify = (date, str, sign) => {
   let d = new Date(date)
@@ -178,21 +182,25 @@ Date.modify = (date, str, sign) => {
   if (['-', '+'].includes(sign) && /(year|month)/i.test(str) && !/day/i.test(str) && date.getDate() !== d.getDate()) return d.start('month').minus('second')
   return d
 }
-Date.plus = (date, str) => date.modify(str, '+')
-Date.minus = (date, str) => date.modify(str, '-')
-Date.start = (date, str) => date.modify(str, '<')
-Date.end = (date, str) => date.modify(str, '>')
+Date.plus = (date, str) => Date.modify(date, str, '+')
+Date.minus = (date, str) => Date.modify(date, str, '-')
+Date.start = (date, str) => Date.modify(date, str, '<')
+Date.end = (date, str) => Date.modify(date, str, '>')
 
 RegExp.escape = r => RegExp(r.source.replace(/([\\/'*+?|()[\]{}.^$-])/g, '\\$1'), r.flags)
 RegExp.plus = (r, f) => RegExp(r.source, r.flags.replace(f, '') + f)
 RegExp.minus = (r, f) => RegExp(r.source, r.flags.replace(f, ''))
 
+Promise.map = async (arr, fn) => await arr.reduce(async (acc, v, i) => ((await acc).push(await fn(v, i)), acc), Promise.resolve([]))
+
 // RAW Core functions
 Object.extend = (primitive, fname) => {
-  if (primitive === true) return (Object.extend.all = true), Object.extend()
-  if (primitive === false) return (Object.extend.all = false), Object.extend()
+  if (primitive === true) return Object.extend([Object, Array, Function, String, Number, Date, RegExp])
+  if (primitive === false) return Object.extend([])
+  if (primitive instanceof Array) return (Object.extend.prototypes = primitive, Object.extend())
   if (primitive === undefined) return [Object, Array, Function, String, Number, Date, RegExp].map(primitive => Object.extend(primitive)).flat()
-  if (!fname) return Array.unique(Object.keys(primitive).concat(Object.extend[primitive.name] || [])).map(fname => Object.extend(primitive, fname))
+  const natives = Object.extend.natives.filter(v => v.startsWith(primitive.name)).map(v => v.split('.')[1])
+  if (!fname) return Array.unique(Object.keys(primitive).concat(natives)).map(fname => Object.extend(primitive, fname))
   if (fname === 'extend') return 'Object.extend#core'
   // Wrap function with shortcuts and extend prototype
   if (primitive.prototype[fname] && primitive.prototype[fname].toString().includes('[native code]')) {
@@ -202,10 +210,10 @@ Object.extend = (primitive, fname) => {
   }
   if (typeof primitive[fname] !== 'function') return
   const fn = primitive[fname].fn || primitive[fname]
-  const native = (Object.extend[primitive.name] || []).includes(fname)
-  const shortcut = Object.keys(Object.extend).includes(fname)
-  primitive[fname] = shortcut ? Function.wrap(fn, Object.extend[fname]) : fn
-  if (Object.extend.all)
+  const native = natives.includes(fname)
+  const shortcut = Object.keys(Object.extend.shortcuts).includes(fname)
+  primitive[fname] = shortcut ? Function.wrap(fn, Object.extend.shortcuts[fname]) : fn
+  if (Object.extend.prototypes.includes(primitive))
     Object.defineProperty(primitive.prototype, fname, {
       enumerable: false,
       configurable: true,
@@ -214,64 +222,73 @@ Object.extend = (primitive, fname) => {
         return primitive[fname](this, ...args)
       },
     })
-  return primitive.name + '.' + fname + (native ? '#native' : '') + (shortcut ? '#shortcut' : '') + (['access', 'eq', 'modify'].includes(fname) ? '#core' : '')
+  return primitive.name + '.' + fname + (native ? '#native' : '') + (shortcut ? '#shortcut' : '')
 }
-Object.extend.version = '1.1.1'
-Object.extend.Object = ['keys', 'values']
-Object.extend.Array = ['map', 'reduce', 'filter', 'find', 'findIndex', 'sort', 'reverse']
-Object.extend.map = (fn, ...args) => {
-  const f = a => {
-    if (a == null) return x => x
-    if (a instanceof Function) return a
-    if (a instanceof Array) return x => a.map(b => Object.access(x, b))
-    return x => Object.access(x, a)
-  }
-  args[1] = f(args[1])
-  return fn(...args)
-}
-Object.extend.filter = Object.extend.find = Object.extend.findIndex = (fn, ...args) => {
-  const f = a => {
-    if (a == null) return x => x
-    if (a instanceof Function) return a
-    if (a instanceof Array) return x => a.some(v => Object.eq(x, v))
-    if (a instanceof RegExp) return x => a.test(x)
-    if (a instanceof Object) return x => Object.keys(a).every(k => f(a[k])(x[k]))
-    return x => Object.eq(x, a) || Object.access(x, a)
-  }
-  args[1] = f(args[1])
-  return fn(...args)
-}
-Object.extend.sort = (fn, ...args) => {
-  const f = a => {
-    if (a == null) return default_sort
-    if (a instanceof Array) return multi_sort(a)
-    if (a instanceof Function && a.length === 1) return (x, y) => default_sort(a(x), a(y))
-    if (a instanceof Function && a.length === 2) return a
-    return directed_sort(a)
-  }
-  args[1] = f(args[1])
-  return fn(...args)
-  function default_sort(a, b) {
-    if (typeof a !== typeof b) return typeof a > typeof b ? 1 : -1
-    if (!a && a !== 0) return a === b ? 0 : -1
-    if (!b && b !== 0) return a === b ? 0 : 1
-    return a === b ? 0 : a > b ? 1 : -1
-  }
-  function directed_sort(p, desc = /^-/.test(p)) {
-    p = ('' + p).replace(/^[+-]/, '')
-    return (a, b) => default_sort(Object.access(a, p), Object.access(b, p)) * (!desc || -1)
-  }
-  function multi_sort(p) {
-    return (a, b) => {
-      for (const k of p) {
-        const z = directed_sort(k)(a, b)
-        if (z) return z
+Object.extend.version = '1.0.0'
+Object.extend.natives = ['Object.keys', 'Object.values', 'Array.map', 'Array.reduce', 'Array.filter', 'Array.find', 'Array.findIndex', 'Array.sort', 'Array.reverse']
+Object.extend.prototypes = []
+Object.extend.shortcuts = {
+  map: (fn, ...args) => {
+    const f = a => {
+      if (a == null) return x => x
+      if (a instanceof Function) return a
+      if (a instanceof Array) return x => a.map(b => Object.access(x, b))
+      return x => Object.access(x, a)
+    }
+    args[1] = f(args[1])
+    return fn(...args)
+  },
+  filter: (fn, ...args) => {
+    const f = a => {
+      if (a == null) return x => x
+      if (a instanceof Function) return a
+      if (a instanceof Array) return x => a.some(v => Object.equal(x, v))
+      if (a instanceof RegExp) return x => a.test(x)
+      if (a instanceof Object) return x => Object.keys(a).every(k => f(a[k])(x[k]))
+      return x => Object.equal(x, a) || Object.access(x, a)
+    }
+    args[1] = f(args[1])
+    return fn(...args)
+  },
+  sort: (fn, ...args) => {
+    const f = a => {
+      if (a == null) return default_sort
+      if (a instanceof Array) return multi_sort(a)
+      if (a instanceof Function && a.length === 1) return (x, y) => default_sort(a(x), a(y))
+      if (a instanceof Function && a.length === 2) return a
+      return directed_sort(a)
+    }
+    args[1] = f(args[1])
+    return fn(...args)
+    function default_sort(a, b) {
+      if (typeof a !== typeof b) return typeof a > typeof b ? 1 : -1
+      if (['object', 'function', 'undefined'].includes(typeof a)) return 0
+      if (a.localeCompare) return a.localeCompare(b, undefined, { numeric: true })
+      if (isNaN(a)) return -1
+      if (isNaN(b)) return 1
+      return a === b ? 0 : a > b ? 1 : -1
+    }
+    function directed_sort(p, desc = /^-/.test(p)) {
+      p = ('' + p).replace(/^[+-]/, '')
+      return (a, b) => default_sort(Object.access(a, p), Object.access(b, p)) * (!desc || -1)
+    }
+    function multi_sort(p) {
+      return (a, b) => {
+        for (const k of p) {
+          const z = directed_sort(k)(a, b)
+          if (z) return z
+        }
       }
     }
-  }
+  },
+  group: (fn, ...args) => {
+    if (args[1] instanceof Array) return args[0].reduce((acc, v) => (args[1].reduce((a, p, i, ds) => a[Object.access(v, p)] = i === ds.length - 1 ? (a[Object.access(v, p)] || []).concat([v]) : a[Object.access(v, p)] || {}, acc), acc), {})
+    return fn(...args)
+  },
+  format: (fn, ...args) => {
+    if (['Invalid Date', 'NaN', 'null', 'undefined'].includes('' + args[0])) return '-'
+    return fn(...args)
+  },
 }
-Object.extend.format = (fn, ...args) => {
-  if (['Invalid Date', 'NaN', 'null', 'undefined'].includes('' + args[0])) return '-'
-  return fn(...args)
-}
+Object.extend.shortcuts.find = Object.extend.shortcuts.findIndex = Object.extend.shortcuts.filter
 Object.extend()

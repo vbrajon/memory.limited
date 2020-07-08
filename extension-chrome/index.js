@@ -43,14 +43,15 @@ window.$root = new Vue({
       return this.bookmarks.filter(v => ['title', 'url'].some(k => r.test(v[k])))
     },
   },
-  created() {
+  async created() {
     const pfy = (fn, ...args) => new Promise(r => fn(...args, r))
     const flat = v => {
       if (v.length) return v.map(flat).flat()
       if (v.children) return flat(v.children)
       return v
     }
-    pfy(chrome.bookmarks.getTree).then(r => this.bookmarks = flat(r))
-    pfy(chrome.history.search, { text: '', maxResults: 0, startTime: Date.now() - 10 * 24 * 3600 * 1000, endTime: Date.now() }).then(r => this.history = r)
+    this.bookmarks = flat(await pfy(chrome.bookmarks.getTree))
+    this.history = await pfy(chrome.history.search, { text: '', maxResults: 0, startTime: Date.now() - 10 * 24 * 3600 * 1000, endTime: Date.now() })
+    await idb.set('history', [await idb.get('history') || [], this.history].flat().reduce((acc, v) => (acc[v.id] = v, acc), {}).values())
   },
 })

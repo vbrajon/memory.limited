@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
-    <title>Memory Limited</title>
+    <title>New Tab</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="A search engine for your already explored content">
@@ -9,12 +9,16 @@
     <link rel="stylesheet" href="raw.css">
     <style>
       [v-cloak] { display: none; }
-      main { max-width: 850px;padding: 4% 20px;margin: 0 auto; }
+      main { max-width: 850px;padding: 60px 20px 0;margin: 0 auto; }
       label, [type="search"] { max-width: none; }
       [type="search"] { height: 60px;font-size: 18px;font-weight: 500; }
-      [type="search"]:focus { box-shadow: none; }
-      .row.stretch.space { margin: 4px -6px; }
-      a { min-width: 300px;padding: 20px;background: var(--gray05); }
+      .row.stretch.space { margin: 4px -8px; }
+      a { min-width: 300px;padding: 20px;background: var(--gray05);border-radius: 4px; }
+      a:hover, a:focus { background: var(--gray2);text-decoration: none;color: var(--blue1); }
+      .time { position: fixed;top: 25px;right: 25px;font-size: 80px; }
+      .access { position: fixed;bottom: 25px;right: 25px;display: flex; }
+      .access button { width: 40px;margin: 8px;padding: 0; }
+      @media (max-width: 1300px) { .time, .access { display: none; }}
     </style>
   </head>
   <body>
@@ -25,7 +29,7 @@
         <div class="space">{{ h.length }}</div>
       </div>
       <div class="row stretch space">
-        <a :href="item.url" target="_blank" rel="nofollow noreferrer" v-for="item in h.slice(0, 6)">
+        <a :href="item.url" rel="nofollow noreferrer" v-for="item in h.slice(0, 6)">
           <img style="margin: -4px 4px" :src="'chrome://favicon/' + new window.URL(item.url).origin">
           <span>{{ item.title }}</span>
           <span>{{ new Date(item.lastVisitTime).relative() }}</span>
@@ -36,11 +40,17 @@
         <div class="space">{{ b.length }}</div>
       </div>
       <div class="row stretch space">
-        <a :href="item.url" target="_blank" rel="nofollow noreferrer" v-for="item in b.slice(0, 6)">
+        <a :href="item.url" rel="nofollow noreferrer" v-for="item in b.slice(0, 6)">
           <img style="margin: -4px 4px" :src="'chrome://favicon/' + new window.URL(item.url).origin">
           <span>{{ item.title }}</span>
           <span v-if="item.dateAdded">{{ new Date(item.dateAdded).format('YYYY') }}</span>
         </a>
+      </div>
+      <div class="time">{{ new Date().format('hh:mm') }}</div>
+      <div class="access">
+        <button @click="window.chrome.tabs.update({ url: 'chrome://history' })"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" shape-rendering="geometricPrecision" style="color:var(--geist-foreground)"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></button>
+        <button @click="window.chrome.tabs.update({ url: 'chrome://bookmarks' })"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" shape-rendering="geometricPrecision" style="color:var(--geist-foreground)"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></button>
+        <button @click="window.chrome.tabs.update({ url: 'chrome://downloads' })"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none" shape-rendering="geometricPrecision" style="color:var(--geist-foreground)"><path d="M8 17l4 4 4-4"/><path d="M12 12v9"/><path d="M20.88 18.09A5 5 0 0018 9h-1.26A8 8 0 103 16.29"/></svg></button>
       </div>
     </main>
     <script type="module" src="/index.js"></script>
