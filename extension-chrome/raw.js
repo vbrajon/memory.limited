@@ -27,6 +27,8 @@ Object.access = (obj, path) => {
   } catch(e) {}
 }
 
+Array.keys = Object.keys
+Array.values = Object.values
 Array.group = (arr, fn) => arr.map(fn).reduce((acc, v, i) => ((acc[v] = (acc[v] || []).concat([arr[i]])), acc), {})
 Array.unique = arr => Array.from(new Set(arr))
 Array.min = arr => Math.min(...arr)
@@ -253,6 +255,7 @@ Object.extend.shortcuts = {
   sort: (fn, ...args) => {
     const f = a => {
       if (a == null) return default_sort
+      if (a instanceof String) return Intl.Collator(a, { numeric: true }).compare
       if (a instanceof Array) return multi_sort(a)
       if (a instanceof Function && a.length === 1) return (x, y) => default_sort(a(x), a(y))
       if (a instanceof Function && a.length === 2) return a
@@ -262,8 +265,8 @@ Object.extend.shortcuts = {
     return fn(...args)
     function default_sort(a, b) {
       if (typeof a !== typeof b) return typeof a > typeof b ? 1 : -1
+      // if (a.localeCompare) return a.localeCompare(b, undefined, { numeric: true })
       if (['object', 'function', 'undefined'].includes(typeof a)) return 0
-      if (a.localeCompare) return a.localeCompare(b, undefined, { numeric: true })
       if (isNaN(a)) return -1
       if (isNaN(b)) return 1
       return a === b ? 0 : a > b ? 1 : -1
