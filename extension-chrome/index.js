@@ -31,6 +31,7 @@ window.$root = new Vue({
   el: 'main',
   data() {
     return {
+      now: new Date().format('hh:mm'),
       search: '',
       history: null,
       bookmarks: null,
@@ -64,5 +65,6 @@ window.$root = new Vue({
     const history = recentHistory.concat(localHistory || [])
     this.history = Object.freeze(history)
     await idb.set('history', history)
+    setInterval(() => this.now = new Date().format('hh:mm'), 1000)
   },
 })
