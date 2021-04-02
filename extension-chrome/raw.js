@@ -113,7 +113,7 @@ String.format = (str, ...args) => {
 Number.duration = num => {
   const n = [31557600000, 2629800000, 604800000, 86400000, 3600000, 60000, 1000, 1]
   const i = n.findIndex(v => v <= Math.abs(num))
-  return Math.round(num / n[i]) + ' ' + ['year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'millisecond'][i] + (Math.abs(num) / n[i] > 1.5 ? 's' : '')
+  return Math.round(num / n[i]) + ['Y', 'M', 'w', 'd', 'h', 'm', 's', 'ms'][i]
 }
 Number.format = (num, format, options) => {
   if (typeof format === 'string') return Intl.NumberFormat(format, options).format(num)
@@ -121,7 +121,7 @@ Number.format = (num, format, options) => {
   return +num.toPrecision(15)
 }
 
-Date.relative = (date, d2 = new Date()) => (date - d2).duration().replace(/^(-?)(.*)/, (m, sign, d) => d + (sign === '-' ? ' ago' : ' from now'))
+Date.relative = (date, d2 = new Date()) => (date - d2).duration().replace(/^(-?)(.*)/, (m, sign, d) => d)
 Date.getWeek = (date, soy = new Date(date.getFullYear(), 0, 0)) => Math.floor(((date - soy) / 86400000 + 6 - soy.getDay()) / 7)
 Date.getQuarter = date => Math.ceil((date.getMonth() + 1) / 3)
 Date.getLastDate = date => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()

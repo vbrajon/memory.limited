@@ -33,19 +33,17 @@ window.$root = new Vue({
     return {
       now: new Date().format('hh:mm'),
       search: '',
-      history: null,
-      bookmarks: null,
+      history: [],
+      bookmarks: [],
     }
   },
   computed: {
     h() {
-      if (!this.history) return Array(10).fill().map(v => ({ title: '', lastVisitTime: Date.now(), url: 'file://' }))
       if (!this.search) return this.history
       const r = RegExp(this.search, 'i')
       return this.history.filter(v => ['title', 'url'].some(k => r.test(v[k])))
     },
     b() {
-      if (!this.bookmarks) return Array(10).fill().map(v => ({ title: '', lastVisitTime: Date.now(), url: 'file://' }))
       if (!this.search) return this.bookmarks
       const r = RegExp(this.search, 'i')
       return this.bookmarks.filter(v => ['title', 'url'].some(k => r.test(v[k])))
