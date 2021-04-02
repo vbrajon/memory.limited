@@ -35,6 +35,8 @@ window.$root = new Vue({
       search: '',
       history: [],
       bookmarks: [],
+      hoff: 0,
+      boff: 0,
     }
   },
   computed: {
@@ -56,7 +58,7 @@ window.$root = new Vue({
       if (v.children) return flat(v.children)
       return v
     }
-    this.bookmarks = Object.freeze(flat(await pfy(chrome.bookmarks.getTree)()))
+    this.bookmarks = Object.freeze(flat(await pfy(chrome.bookmarks.getTree)()).sort('-dateAdded'))
     const localHistory = await idb.get('history')
     const lastVisitTime = localHistory ? localHistory.map('lastVisitTime').max().ceil() : Date.now() - 90 * 24 * 60 * 60 * 1000
     const recentHistory = await pfy(chrome.history.search)({ text: '', maxResults: 0, startTime: lastVisitTime })
