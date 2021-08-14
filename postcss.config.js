@@ -7,5 +7,5 @@ module.exports = {
     '@tailwindcss/jit': {},
     // autoprefixer: {},
     // cssnano: { preset: 'default' },
-  }
+  },
 }

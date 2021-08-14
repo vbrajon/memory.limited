@@ -14,18 +14,33 @@ window.idb = {
     openreq.onupgradeneeded = () => openreq.result.createObjectStore('kv')
   }),
   transaction(type, fn) {
-    return this.db.then(db => new Promise((resolve, reject) => {
-      const transaction = db.transaction('kv', type)
-      transaction.oncomplete = () => resolve(request)
-      transaction.onabort = transaction.onerror = () => reject(transaction.error)
-      const request = fn(transaction.objectStore('kv'))
-    })).then(req => req.result)
+    return this.db
+      .then(
+        db =>
+          new Promise((resolve, reject) => {
+            const transaction = db.transaction('kv', type)
+            transaction.oncomplete = () => resolve(request)
+            transaction.onabort = transaction.onerror = () => reject(transaction.error)
+            const request = fn(transaction.objectStore('kv'))
+          }),
+      )
+      .then(req => req.result)
   },
-  get(key) { return this.transaction('readonly', store => store.get(key)) },
-  set(key, value) { return this.transaction('readwrite', store => store.put(value, key)) },
-  del(key) { return this.transaction('readwrite', store => store.delete(key)) },
-  clear() { return this.transaction('readwrite', store => store.clear()) },
-  keys() { return this.transaction('readwrite', store => store.getAllKeys()) },
+  get(key) {
+    return this.transaction('readonly', store => store.get(key))
+  },
+  keys() {
+    return this.transaction('readonly', store => store.getAllKeys())
+  },
+  set(key, value) {
+    return this.transaction('readwrite', store => store.put(value, key))
+  },
+  del(key) {
+    return this.transaction('readwrite', store => store.delete(key))
+  },
+  clear() {
+    return this.transaction('readwrite', store => store.clear())
+  },
 }
 window.$root = new Vue({
   el: 'main',
@@ -48,7 +63,7 @@ window.$root = new Vue({
     b() {
       if (!this.search) return this.bookmarks
       const r = RegExp(this.search, 'i')
-      return this.bookmarks.filter(v => ['title', 'url'].some(k => r.test(v[k])))
+      return this.bookmarks.filter(v => ['title', 'url', 'year'].some(k => r.test(v[k])))
     },
   },
   async created() {
@@ -58,13 +73,19 @@ window.$root = new Vue({
       if (v.children) return flat(v.children)
       return v
     }
-    this.bookmarks = Object.freeze(flat(await pfy(chrome.bookmarks.getTree)()).sort('-dateAdded'))
+    const bookmarks = flat(await pfy(chrome.bookmarks.getTree)()).sort('-dateAdded')
+    this.bookmarks = Object.freeze(
+      bookmarks.map(v => {
+        v.year = new Date(v.dateAdded).format('YYYY')
+        return v
+      }),
+    )
     const localHistory = await idb.get('history')
     const lastVisitTime = localHistory ? localHistory.map('lastVisitTime').max().ceil() : Date.now() - 90 * 24 * 60 * 60 * 1000
     const recentHistory = await pfy(chrome.history.search)({ text: '', maxResults: 0, startTime: lastVisitTime })
     const history = recentHistory.concat(localHistory || [])
     this.history = Object.freeze(history)
     await idb.set('history', history)
-    setInterval(() => this.now = new Date().format('hh:mm'), 1000)
+    setInterval(() => (this.now = new Date().format('hh:mm')), 1000)
   },
 })
