@@ -1,7 +1,5 @@
 import "./cut.js"
-import Vue from "./vue.esm.browser.js"
-Vue.config.devtools = Vue.config.productionTip = false
-Vue.prototype.window = window
+import { createApp } from "./vue.esm-browser.prod.js"
 window.idb = {
   db: new Promise((resolve, reject) => {
     const openreq = indexedDB.open("kvs", 1)
@@ -38,8 +36,7 @@ window.idb = {
     return this.transaction("readwrite", (store) => store.clear())
   },
 }
-window.$root = new Vue({
-  el: "main",
+const app = createApp({
   data() {
     return {
       now: new Date().format("hh:mm"),
@@ -75,12 +72,16 @@ window.$root = new Vue({
         return v
       })
     )
+    this.history = await chrome.history.search.promisify({ text: "", maxResults: 10, startTime: Date.now() - 90 * 24 * 60 * 60 * 1000 })
+    setInterval(() => (this.now = new Date().format("hh:mm")), 1000)
+
     const localHistory = await idb.get("history")
     const lastVisitTime = localHistory ? localHistory.map("lastVisitTime").max().ceil() : Date.now() - 90 * 24 * 60 * 60 * 1000
     const recentHistory = await chrome.history.search.promisify({ text: "", maxResults: 0, startTime: lastVisitTime })
     const history = recentHistory.concat(localHistory || [])
     this.history = Object.freeze(history)
     await idb.set("history", history)
-    setInterval(() => (this.now = new Date().format("hh:mm")), 1000)
   },
 })
+app.config.globalProperties.window = window
+app.mount("main")

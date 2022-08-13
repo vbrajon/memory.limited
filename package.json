@@ -5,6 +5,7 @@
     "watch": "TAILWIND_MODE=watch postcss tailwind.css -o extension-chrome/index.css --verbose --watch"
   },
   "dependencies": {
+    "@tailwindcss/line-clamp": "0.4.0",
     "autoprefixer": "10.4.8",
     "cssnano": "5.1.13",
     "postcss": "8.4.16",
