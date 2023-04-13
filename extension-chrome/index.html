@@ -19,7 +19,7 @@
         <div class="mr-2 text-xl i-lucide/clock"></div>
         <div class="w-10" v-text="h.length"></div>
       </button>
-      <div class="-m-2 h-[400px] overflow-auto" @scroll="hoff = 2 * Math.floor($event.target.scrollTop / 76.8)">
+      <div class="-m-2 h-[160px] overflow-auto" @scroll="hoff = 2 * Math.floor($event.target.scrollTop / 76.8)">
         <div class="sticky top-0 grid gap-4 p-2 md:grid-cols-2">
           <a class="flex h-16 place-content-center place-items-center rounded bg-slate-100 p-4 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" :href="item.url" rel="nofollow noreferrer" v-for="item in h.slice(hoff, hoff + 10)">
             <img class="pr-2" :src="'chrome://favicon/' + new window.URL(item.url || 'https://x.com').origin" />
@@ -28,6 +28,20 @@
           </a>
         </div>
         <div :style="`height: ${Math.ceil((h.length - 10) / 2) * 76.8}px`" v-if="h.length > 10"></div>
+      </div>
+      <button class="m-2 mx-auto flex place-content-center place-items-center rounded p-2 hover:bg-slate-200 hover:shadow dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://history/syncedTabs' })" tabindex="-1">
+        <div class="mr-2 text-xl i-lucide/smartphone"></div>
+        <div class="w-10" v-text="t.length"></div>
+      </button>
+      <div class="-m-2 h-[160px] overflow-auto" @scroll="toff = 2 * Math.floor($event.target.scrollTop / 76.8)">
+        <div class="sticky top-0 grid gap-4 p-2 md:grid-cols-2">
+          <a class="flex h-16 place-content-center place-items-center rounded bg-slate-100 p-4 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" :href="item.url" rel="nofollow noreferrer" v-for="item in t.slice(toff, toff + 10)">
+            <img class="pr-2" :src="'chrome://favicon/' + new window.URL(item.url || 'https://x.com').origin" />
+            <div class="line-clamp-2 font-medium" v-text="item.title"></div>
+            <div class="ml-auto pl-2" v-text="new Date(item.lastVisitTime).relative().replace(/ (.*?)s? ago/, (m, u) => Date.UNITS.find(([k]) => k === u)[2])"></div>
+          </a>
+        </div>
+        <div :style="`height: ${Math.ceil((t.length - 10) / 2) * 76.8}px`" v-if="t.length > 10"></div>
       </div>
       <button class="m-2 mx-auto flex place-content-center place-items-center rounded p-2 hover:bg-slate-200 hover:shadow dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://bookmarks' })" tabindex="-1">
         <div class="mr-2 text-lg i-lucide/bookmark"></div>
@@ -45,9 +59,6 @@
       </div>
       <div class="fixed right-10 top-10 hidden text-7xl font-bold lg:flex" v-text="now"></div>
       <div class="fixed bottom-10 right-10 hidden lg:flex">
-        <button class="m-2 rounded bg-slate-100 p-2 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://history/syncedTabs' })">
-          <div class="text-2xl i-lucide/smartphone"></div>
-        </button>
         <button class="m-2 rounded bg-slate-100 p-2 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://downloads' })">
           <div class="text-2xl i-lucide/download-cloud"></div>
         </button>
