@@ -346,7 +346,7 @@ Object.shortcuts = Object.shortcuts || {
   },
   format: {
     after: (v) => {
-      if (["Invalid Date", "NaN", "null", "undefined"].includes(v)) return "-"
+      if (/(Invalid Date|NaN|null|undefined)/.test(v)) return "-"
       return v
     },
   },

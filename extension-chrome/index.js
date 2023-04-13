@@ -41,8 +41,8 @@ const app = createApp({
     return {
       now: new Date().format("hh:mm"),
       search: "",
-      history: [],
-      bookmarks: [],
+      history: Array(10).fill({}),
+      bookmarks: Array(10).fill({}),
       hoff: 0,
       boff: 0,
     }
