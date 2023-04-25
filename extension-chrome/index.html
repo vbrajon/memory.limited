@@ -5,69 +5,77 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="A search engine for your already explored content" />
-    <link rel="icon" href="icon.png" />
-    <link rel="stylesheet" href="index.css" />
+    <link rel="icon" href="/icon.png" />
+    <link rel="stylesheet" href="/index.css" />
     <script type="module" src="/index.js"></script>
   </head>
-  <body class="mx-auto h-screen max-w-[900px] overscroll-none bg-white p-12 text-slate-900 dark:bg-slate-950 dark:text-white">
-    <main>
-      <label>
-        <input class="h-16 w-full rounded px-6 text-2xl font-bold dark:bg-slate-800 dark:placeholder-slate-300 dark:hover:bg-slate-600" type="search" placeholder="Search" v-model="search" />
-        <div class="m-1 text-[9px] font-bold">Hit Tab to focus</div>
-      </label>
-      <button class="m-2 mx-auto flex place-content-center place-items-center rounded p-2 hover:bg-slate-200 hover:shadow dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://history' })" tabindex="-1">
-        <div class="mr-2 text-xl i-lucide/clock"></div>
-        <div class="w-10" v-text="h.length"></div>
-      </button>
-      <div class="-m-2 h-[160px] overflow-auto" @scroll="hoff = 2 * Math.floor($event.target.scrollTop / 76.8)">
-        <div class="sticky top-0 grid gap-4 p-2 md:grid-cols-2">
-          <a class="flex h-16 place-content-center place-items-center rounded bg-slate-100 p-4 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" :href="item.url" rel="nofollow noreferrer" v-for="item in h.slice(hoff, hoff + 10)">
-            <img class="pr-2" :src="'chrome://favicon/' + new window.URL(item.url || 'https://x.com').origin" />
-            <div class="line-clamp-2 font-medium" v-text="item.title"></div>
-            <div class="ml-auto pl-2" v-text="new Date(item.lastVisitTime).relative().replace(/ (.*?)s? ago/, (m, u) => Date.UNITS.find(([k]) => k === u)[2])"></div>
-          </a>
+  <body class="mx-auto h-screen overscroll-none bg-white p-12 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <main class="flex h-full flex-col">
+      <div class="relative flex">
+        <div class="absolute -translate-y-full p-1 text-[9px] font-bold">Hit Tab to focus</div>
+        <input class="h-[4.5rem] flex-1 rounded px-6 text-2xl font-bold dark:bg-slate-800 dark:placeholder-slate-300 dark:hover:bg-slate-600 sm:max-w-[66%]" type="search" placeholder="Search" v-model="search" />
+        <div class="grid grid-cols-2 gap-2 px-2 max-md:hidden">
+          <button class="h-8 w-8 rounded bg-slate-100 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://downloads' })">
+            <div class="text-lg i-lucide/download-cloud"></div>
+          </button>
+          <button class="h-8 w-8 rounded bg-slate-100 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://extensions' })">
+            <div class="text-lg i-lucide/package"></div>
+          </button>
+          <button class="h-8 w-8 rounded bg-slate-100 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://settings' })">
+            <div class="text-lg i-lucide/settings"></div>
+          </button>
         </div>
-        <div :style="`height: ${Math.ceil((h.length - 10) / 2) * 76.8}px`" v-if="h.length > 10"></div>
+        <div class="ml-auto flex text-7xl font-bold max-sm:hidden" v-text="now"></div>
       </div>
-      <button class="m-2 mx-auto flex place-content-center place-items-center rounded p-2 hover:bg-slate-200 hover:shadow dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://history/syncedTabs' })" tabindex="-1">
-        <div class="mr-2 text-xl i-lucide/smartphone"></div>
-        <div class="w-10" v-text="t.length"></div>
-      </button>
-      <div class="-m-2 h-[160px] overflow-auto" @scroll="toff = 2 * Math.floor($event.target.scrollTop / 76.8)">
-        <div class="sticky top-0 grid gap-4 p-2 md:grid-cols-2">
-          <a class="flex h-16 place-content-center place-items-center rounded bg-slate-100 p-4 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" :href="item.url" rel="nofollow noreferrer" v-for="item in t.slice(toff, toff + 10)">
-            <img class="pr-2" :src="'chrome://favicon/' + new window.URL(item.url || 'https://x.com').origin" />
-            <div class="line-clamp-2 font-medium" v-text="item.title"></div>
-            <div class="ml-auto pl-2" v-text="new Date(item.lastVisitTime).relative().replace(/ (.*?)s? ago/, (m, u) => Date.UNITS.find(([k]) => k === u)[2])"></div>
-          </a>
+      <div class="mt-auto flex gap-4 py-4">
+        <div class="flex flex-1 flex-col gap-4">
+          <button class="mx-auto flex rounded p-2 hover:bg-slate-200 hover:shadow dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://history' })" tabindex="-1">
+            <div class="mr-2 text-xl i-lucide/clock"></div>
+            <div class="w-10" v-text="h.length"></div>
+          </button>
+          <div class="-m-2 h-[560px] overflow-auto" @scroll="hoff = Math.floor($event.target.scrollTop / 76.8)">
+            <div class="sticky top-0 grid gap-4 p-2">
+              <a class="line-clamp-2 flex h-16 place-content-center place-items-center rounded bg-slate-100 p-4 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" :href="item.url" rel="nofollow noreferrer" v-for="item in h.slice(hoff, hoff + 7)">
+                <img class="pr-2" :src="'chrome://favicon/' + new window.URL(item.url || 'https://x.com').origin" />
+                <div class="line-clamp-2 font-medium" v-text="item.title"></div>
+                <div class="ml-auto pl-2" v-text="new Date(item.lastVisitTime).relative().replace(/ (.*?)s? ago/, (m, u) => Date.UNITS.find(([k]) => k === u)[2])"></div>
+              </a>
+            </div>
+            <div :style="`height: ${(h.length - 7) * 76.8}px`" v-if="h.length > 7"></div>
+          </div>
         </div>
-        <div :style="`height: ${Math.ceil((t.length - 10) / 2) * 76.8}px`" v-if="t.length > 10"></div>
-      </div>
-      <button class="m-2 mx-auto flex place-content-center place-items-center rounded p-2 hover:bg-slate-200 hover:shadow dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://bookmarks' })" tabindex="-1">
-        <div class="mr-2 text-lg i-lucide/bookmark"></div>
-        <div class="w-10" v-text="b.length"></div>
-      </button>
-      <div class="-m-2 h-[160px] overflow-auto" @scroll="boff = 2 * Math.floor($event.target.scrollTop / 76.8)">
-        <div class="sticky top-0 grid gap-4 p-2 md:grid-cols-2">
-          <a class="flex h-16 place-content-center place-items-center rounded bg-slate-100 p-4 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" :href="item.url" rel="nofollow noreferrer" v-for="item in b.slice(boff, boff + 4)">
-            <img class="pr-2" :src="'chrome://favicon/' + new window.URL(item.url || 'https://x.com').origin" />
-            <div class="line-clamp-2 font-medium" v-text="item.title"></div>
-            <div class="ml-auto pl-2" v-text="new Date(item.dateAdded).format('YYYY')"></div>
-          </a>
+        <div class="flex flex-1 flex-col gap-4 max-sm:hidden">
+          <button class="mx-auto flex rounded p-2 hover:bg-slate-200 hover:shadow dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://bookmarks' })" tabindex="-1">
+            <div class="mr-2 text-xl i-lucide/bookmark"></div>
+            <div class="w-10" v-text="b.length"></div>
+          </button>
+          <div class="-m-2 h-[560px] overflow-auto" @scroll="boff = Math.floor($event.target.scrollTop / 76.8)">
+            <div class="sticky top-0 grid gap-4 p-2">
+              <a class="line-clamp-2 flex h-16 place-content-center place-items-center rounded bg-slate-100 p-4 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" :href="item.url" rel="nofollow noreferrer" v-for="item in b.slice(boff, boff + 7)">
+                <img class="pr-2" :src="'chrome://favicon/' + new window.URL(item.url || 'https://x.com').origin" />
+                <div class="line-clamp-2 font-medium" v-text="item.title"></div>
+                <div class="ml-auto pl-2" v-text="new Date(item.dateAdded).format('YYYY')"></div>
+              </a>
+            </div>
+            <div :style="`height: ${(b.length - 7) * 76.8}px`" v-if="b.length > 7"></div>
+          </div>
         </div>
-        <div :style="`height: ${Math.ceil((b.length - 4) / 2) * 76.8}px`" v-if="b.length > 4"></div>
-      </div>
-      <div class="fixed right-10 top-10 hidden text-7xl font-bold lg:flex" v-text="now"></div>
-      <div class="fixed bottom-10 right-10 hidden lg:flex">
-        <button class="m-2 rounded bg-slate-100 p-2 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://downloads' })">
-          <div class="text-2xl i-lucide/download-cloud"></div>
-        </button>
-        <button class="m-2 rounded bg-slate-100 p-2 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://extensions' })">
-          <div class="text-2xl i-lucide/package"></div>
-        </button>
-        <button class="m-2 rounded bg-slate-100 p-2 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://settings' })">
-          <div class="text-2xl i-lucide/settings"></div>
-        </button>
+        <div class="flex flex-1 flex-col gap-4 max-md:hidden">
+          <button class="mx-auto flex rounded p-2 hover:bg-slate-200 hover:shadow dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://history/syncedTabs' })" tabindex="-1">
+            <div class="mr-2 text-xl i-lucide/smartphone"></div>
+            <div class="w-10" v-text="t.length"></div>
+          </button>
+          <div class="-m-2 h-[560px] overflow-auto" @scroll="toff = Math.floor($event.target.scrollTop / 76.8)">
+            <div class="sticky top-0 grid gap-4 p-2">
+              <a class="line-clamp-2 flex h-16 place-content-center place-items-center rounded bg-slate-100 p-4 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" :href="item.url" rel="nofollow noreferrer" v-for="item in t.slice(toff, toff + 7)">
+                <img class="pr-2" :src="'chrome://favicon/' + new window.URL(item.url || 'https://x.com').origin" />
+                <div class="line-clamp-2 font-medium" v-text="item.title"></div>
+                <div class="ml-auto pl-2" v-text="new Date(item.lastVisitTime).relative().replace(/ (.*?)s? ago/, (m, u) => Date.UNITS.find(([k]) => k === u)[2])"></div>
+              </a>
+            </div>
+            <div :style="`height: ${(t.length - 7) * 76.8}px`" v-if="t.length > 7"></div>
+          </div>
+        </div>
       </div>
     </main>
   </body>
