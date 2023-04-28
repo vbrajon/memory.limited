@@ -47,6 +47,7 @@ window.app = createApp({
       hoff: 0,
       toff: 0,
       boff: 0,
+      size: Math.min(10, Math.floor((window.innerHeight - 200) / 80)),
     }
   },
   computed: {
@@ -73,7 +74,7 @@ window.app = createApp({
       return { ...v, year: new Date(v.dateAdded).format("YYYY") }
     }
     const bookmarks = flat(await chrome.bookmarks.getTree.promisify()).sort("-dateAdded")
-    const history = await chrome.history.search.promisify({ text: "", maxResults: 0, startTime: Date.now() - 90 * 24 * 60 * 60 * 1000 })
+    const history = await chrome.history.search.promisify({ text: "", maxResults: 10, startTime: Date.now() - 90 * 24 * 60 * 60 * 1000 })
     const tabs = (await chrome.sessions.getDevices.promisify()).flatMap((v) => v.sessions).flatMap((v) => v.window.tabs)
     this.history = Object.freeze(history)
     this.tabs = Object.freeze(tabs)
