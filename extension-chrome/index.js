@@ -90,4 +90,32 @@ window.app = createApp({
   },
 })
 app.config.globalProperties.window = window
-window.instance = app.mount("main")
+app.config.globalProperties.document = document
+window.$root = app.mount("main")
+
+addEventListener(
+  "keydown",
+  (e) => {
+    if (document.activeElement.tagName === "INPUT") if (e.key === "ArrowDown") return document.querySelector("a").focus()
+    if (e.key === "ArrowUp" && document.activeElement === document.querySelector("a")) return document.querySelector("input").focus()
+    if (e.key === "ArrowDown") return document.activeElement.nextElementSibling.focus()
+    if (e.key === "ArrowUp") return document.activeElement.previousElementSibling.focus()
+    if (e.key === "ArrowRight") return document.activeElement.parentElement.parentElement.parentElement.nextElementSibling.querySelector(`a:nth-child(${Array.from(document.activeElement.parentElement.children).indexOf(document.activeElement) + 1})`).focus()
+    if (e.key === "ArrowLeft") return document.activeElement.parentElement.parentElement.parentElement.previousElementSibling.querySelector(`a:nth-child(${Array.from(document.activeElement.parentElement.children).indexOf(document.activeElement) + 1})`).focus()
+  },
+  { capture: true, passive: true }
+)
+addEventListener(
+  "click",
+  (e) => {
+    document.querySelector("input").focus()
+  },
+  { capture: true, passive: true }
+)
+addEventListener(
+  "mousedown",
+  (e) => {
+    if (e.target.tagName === "INPUT") e.preventDefault()
+  },
+  { capture: true, passive: false }
+)
