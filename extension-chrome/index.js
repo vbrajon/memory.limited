@@ -109,6 +109,8 @@ addEventListener(
   "click",
   (e) => {
     if (document.activeElement === document.body) document.querySelector("input").focus()
+    const link = e.composedPath().find(v => v.href)
+    if (link) localStorage.track = JSON.stringify(JSON.parse(localStorage.track || "[]").concat({ url: link.href, time: Date.now() }))
   },
   { capture: true, passive: true }
 )
