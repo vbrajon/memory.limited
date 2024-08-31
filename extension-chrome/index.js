@@ -67,6 +67,17 @@ window.app = createApp({
       return this.bookmarks.filter((v) => ["title", "url", "year"].some((k) => r.test(v[k])))
     },
   },
+  methods: {
+    backup() {
+      const backup = { history: this.history, tabs: this.tabs, bookmarks: this.bookmarks }
+      const blob = new Blob([JSON.stringify(backup)], { type: "application/json" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `memory-limited-${new Date().format("YYYY-MM-DD")}.json`
+      a.click()
+    },
+  },
   async created() {
     const flat = (v) => {
       if (v.length) return v.map(flat).flat()
