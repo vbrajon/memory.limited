@@ -1,6 +1,5 @@
-/** @type {import('tailwindcss').Config} */
-const plugin = require("tailwindcss/plugin")
-const colors = require("tailwindcss/colors")
+import plugin from "tailwindcss/plugin"
+import colors from "tailwindcss/colors"
 const pluginColor = plugin.withOptions(
   // Usage:
   // <div class="primary-amber">
@@ -63,7 +62,7 @@ const pluginColor = plugin.withOptions(
         },
       },
     }
-  }
+  },
 )
 const pluginIcon = plugin.withOptions(
   // Usage:
@@ -107,12 +106,13 @@ const pluginIcon = plugin.withOptions(
         {
           values,
           modifiers: true,
-        }
+        },
       )
     }
-  }
+  },
 )
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
   content: ["./extension-chrome/index.html"],
   theme: {
     screens: {

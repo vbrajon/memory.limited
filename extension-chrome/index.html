@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <title>New Tab</title>
@@ -13,10 +13,10 @@
     <main class="flex h-full flex-col">
       <div class="relative flex">
         <div class="absolute -translate-y-full p-1 text-[9px] font-bold">Hit "Tab" to focus, "Arrows" to navigate</div>
-        <input class="h-[4.5rem] flex-1 rounded px-6 text-2xl font-bold dark:bg-slate-800 dark:placeholder-slate-300 dark:hover:bg-slate-600 sm:max-w-[66%]" type="search" placeholder="Search" v-model="search" />
+        <input class="h-[4.5rem] flex-1 rounded px-6 text-2xl font-bold sm:max-w-[66%] dark:bg-slate-800 dark:placeholder-slate-300 dark:hover:bg-slate-600" type="search" placeholder="Search" v-model="search" />
         <div class="grid grid-cols-2 gap-2 px-2 max-md:hidden">
           <button class="h-8 w-8 rounded bg-slate-100 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://downloads' })">
-            <div class="text-lg i-lucide/download-cloud"></div>
+            <div class="text-lg i-lucide/cloud-download"></div>
           </button>
           <button class="h-8 w-8 rounded bg-slate-100 shadow hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-600" @click="window.chrome.tabs.update({ url: 'chrome://extensions' })">
             <div class="text-lg i-lucide/package"></div>

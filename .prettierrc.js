@@ -1,5 +1,5 @@
-module.exports = {
+export default {
   printWidth: 10000,
   semi: false,
-  plugins: [require("prettier-plugin-tailwindcss")],
+  plugins: ["prettier-plugin-tailwindcss"],
 }
