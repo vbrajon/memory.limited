@@ -132,3 +132,17 @@ addEventListener(
   },
   { capture: true, passive: false },
 )
+addEventListener("dragover", (e) => e.preventDefault())
+addEventListener("drop", (e) => {
+  e.preventDefault()
+  const file = e.dataTransfer.files[0]
+  const reader = new FileReader()
+  reader.onload = () => {
+    const backup = JSON.parse(reader.result)
+    $root.history = backup.history
+    $root.tabs = backup.tabs
+    $root.bookmarks = backup.bookmarks
+    idb.set("history", backup.history)
+  }
+  reader.readAsText(file)
+})
