@@ -3,18 +3,14 @@
   "scripts": {
     "bump": "npx npm-check-updates -u && bun install && cd extension-chrome && curl -LO https://unpkg.com/vue/dist/vue.esm-browser.prod.js",
     "lint": "prettier --write extension-chrome",
-    "build": "TAILWIND_MODE=build postcss tailwind.css -o extension-chrome/index.css --verbose && ls -lh extension-chrome/index.css",
-    "dev": "TAILWIND_MODE=watch postcss tailwind.css -o extension-chrome/index.css --verbose --watch"
+    "build": "npx @tailwindcss/cli -i tailwind.css -o extension-chrome/index.css && cat extension-chrome/index.css | gzip -c | wc -c",
+    "dev": "npx @tailwindcss/cli -i tailwind.css -o extension-chrome/index.css --verbose --watch"
   },
   "devDependencies": {
-    "@iconify/json": "2.2.242",
-    "autoprefixer": "10.4.20",
-    "cssnano": "7.0.5",
-    "postcss": "8.4.41",
-    "postcss-cli": "11.0.0",
-    "postcss-url": "10.1.3",
-    "prettier": "3.3.3",
-    "prettier-plugin-tailwindcss": "0.6.6",
-    "tailwindcss": "3.4.10"
+    "@iconify/json": "2.2.289",
+    "@tailwindcss/cli": "^4.0.0-beta.8",
+    "prettier": "3.4.2",
+    "prettier-plugin-tailwindcss": "0.6.9",
+    "tailwindcss": "^4.0.0-beta.8"
   }
 }

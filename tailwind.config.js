@@ -85,6 +85,7 @@ const pluginIcon = plugin.withOptions(
     })
     const url = (path) => {
       const [collection, icon] = path.split("/")
+      if (!collections[collection]) return
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">${options.style ? `<style>${options.style}</style>` : ""}${collections[collection].icons[icon].body}</svg>`
       const base64 = Buffer.from(svg).toString("base64")
       return `data:image/svg+xml;base64,${base64}`
