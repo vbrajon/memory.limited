@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>New Tab</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A search engine for your already explored content" />
+    <link rel="icon" href="/icon.png" />
+    <link rel="stylesheet" href="/index.css" />
+    <script type="module" src="/index.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="hint">Hit "Tab" to focus, "Arrows" to navigate</div>
+        <input type="search" placeholder="Search" />
+        <nav>
+          <button data-url="chrome://downloads" title="Downloads">
+            <svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M12 13v8l-4-4m4 4l4-4"/><path d="M4.393 15.269A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.436 8.284"/></g></svg>
+          </button>
+          <button id="backup" title="Backup">
+            <svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M12 13v8m-8-6.101A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17l4-4l4 4"/></g></svg>
+          </button>
+          <button data-url="chrome://extensions" title="Extensions">
+            <svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73zm1 .27V12"/><path d="m3.3 7l7.703 4.734a2 2 0 0 0 1.994 0L20.7 7M7.5 4.27l9 5.15"/></g></svg>
+          </button>
+          <button data-url="chrome://settings" title="Settings">
+            <svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2"/><circle cx="12" cy="12" r="3"/></g></svg>
+          </button>
+        </nav>
+        <time></time>
+      </header>
+      <section id="columns">
+        <div class="col" id="history">
+          <button class="head" data-url="chrome://history">
+            <svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></g></svg>
+            <span class="count"></span>
+          </button>
+          <div class="scroll">
+            <div class="items"></div>
+            <div class="spacer"></div>
+          </div>
+        </div>
+        <div class="col" id="bookmarks">
+          <button class="head" data-url="chrome://bookmarks">
+            <svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m19 21l-7-4l-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <span class="count"></span>
+          </button>
+          <div class="scroll">
+            <div class="items"></div>
+            <div class="spacer"></div>
+          </div>
+        </div>
+        <div class="col" id="tabs">
+          <button class="head" data-url="chrome://history/syncedTabs">
+            <svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></g></svg>
+            <span class="count"></span>
+          </button>
+          <div class="scroll">
+            <div class="items"></div>
+            <div class="spacer"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
