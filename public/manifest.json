@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "memory.limited",
+  "description": "Quick Search in your history, bookmarks.",
+  "version": "2.0",
+  "permissions": ["history", "bookmarks", "tabs", "sessions", "favicon"],
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}

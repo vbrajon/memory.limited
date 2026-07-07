@@ -114,7 +114,7 @@ const pluginIcon = plugin.withOptions(
 )
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./extension-chrome/index.html"],
+  content: ["./index.html", "./src/**/*.{vue,js}"],
   theme: {
     screens: {
       sm: "600px",
